@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/auth.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- JS -->
+    <script src="assets/js/default_header.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="left-header">
+            <span class="material-symbols-outlined">
+                local_cafe
+            </span>
+            <nav>
+                <ul>
+                    <li><a href="index.html">PÁGINA INICIAL</a></li>
+                    <li><a href="produtos.html">PRODUTOS</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right-header">
+            <div class="dropdown">
+                <span class="material-symbols-outlined" onclick="toggleDropdown('accountDropdown')">
+                    account_circle
+                </span>
+                <div class="dropdown-content" id="accountDropdown">
+                    <a href="login.html" id="login_redirect">Acesse</a>
+                    <a href="register.html" id="register_redirect">Cadastre-se</a>
+                    <a href="historico.html" id="historico_redirect">Histórico de Pedidos</a>
+                    <a id="logout_redirect" onclick="logout()">Sair</a>
+                </div>
+            </div>
+            <span class="material-symbols-outlined" onclick="window.location.href='carrinho.html'">
+                shopping_cart
+            </span>
+        </div>
+    </header>
+
+    <div class="page-title">
+        <h1>Crie sua conta</h1>
+        <span>
+            Crie uma conta, ou acesse a sua clicando <a href="login.html">aqui</a>.
+        </span>
+    </div>
+
+    <div class="nav-changer">
+        <div class="nav-changer-item-left active" onclick="setAccountType('personal')">
+            CONTA PESSOAL 
+        </div>
+        <div class="nav-changer-item-right" onclick="setAccountType('enterprise')">
+            CONTA EMPRESARIAL
+        </div>
+    </div>
+
+    <div class="form-login">
+        <div class="form-field">
+            <label for="name">Nome</label>
+            <input type="text" name="name" id="name" required placeholder="Digite seu nome">
+        </div>
+        <div class="form-field">
+            <label for="email">E-mail</label>
+            <input type="email" name="email" id="email" required placeholder="Digite seu e-mail">
+        </div>
+        <div class="form-field">
+            <label for="password">Senha</label>
+            <input type="password" name="password" id="password" required placeholder="Digite sua senha">
+        </div>
+        <div id="personal_input" class="form-field">
+            <label for="birthday">Data de Nascimento</label>
+            <input type="date" name="birthday" id="birthday" placeholder="Digite sua data de nascimento">
+        </div>
+        <div id="enterprise_input" class="form-field">
+            <label for="cnpj">CNPJ</label>
+            <input type="text" name="cnpj" id="cnpj" placeholder="Digite seu CNPJ">
+        </div>
+
+
+        <div class="form-field">
+            <button type="button" id="button_send" onclick="createAccount()">CRIAR CONTA</button>
+        </div>
+    </div>
+
+</body>
+<script>
+    let defaultAccountType = 'personal';
+
+    window.onload = function() {
+        setAccountType(defaultAccountType);
+        setDropdown();
+    }
+
+    function setAccountType(type) {
+        defaultAccountType = type;
+        if (type == 'personal') {
+            document.getElementById('personal_input').style.display = 'block';
+            document.getElementById('enterprise_input').style.display = 'none';
+            document.getElementById('birthday').setAttribute('required', 'required');
+            document.getElementById('cnpj').removeAttribute('required');
+            document.getElementsByClassName('nav-changer-item-left')[0].classList.add('active');
+            document.getElementsByClassName('nav-changer-item-right')[0].classList.remove('active');
+            document.getElementById('button_send').textContent = 'CRIAR CONTA PESSOAL';
+        } else {
+            document.getElementById('personal_input').style.display = 'none';
+            document.getElementById('enterprise_input').style.display = 'block';
+            document.getElementById('birthday').removeAttribute('required');
+            document.getElementById('cnpj').setAttribute('required', 'required');
+            document.getElementsByClassName('nav-changer-item-left')[0].classList.remove('active');
+            document.getElementsByClassName('nav-changer-item-right')[0].classList.add('active');
+            document.getElementById('button_send').textContent = 'CRIAR CONTA EMPRESARIAL';
+        }
+    }
+
+    function createAccount() {
+        let name = document.getElementById('name').value;
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        let birthday = document.getElementById('birthday').value;
+        let cnpj = document.getElementById('cnpj').value;
+
+        if (name == '' || email == '' || password == '') {
+            alert('Preencha todos os campos!');
+            return;
+        }
+
+        if(defaultAccountType == 'personal' && birthday == '') {
+            alert('Preencha todos os campos!');
+            return;
+        }
+
+        if(defaultAccountType == 'enterprise' && cnpj == '') {
+            alert('Preencha todos os campos!');
+            return;
+        }
+
+        var register = {
+            name: name,
+            email: email,
+            password: password,
+            birthday: defaultAccountType == 'personal' ? birthday : null,
+            cnpj: defaultAccountType == 'enterprise' ? cnpj : null
+        };
+
+        fetch('/api/register.php', {
+            method: 'POST',
+            body: JSON.stringify(register),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status) {
+                alert(data.message);
+                window.location.href = 'login.html';
+            } else {
+                alert(data.message);
+            }
+        })
+    }
+
+</script>
+</html>

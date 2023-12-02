@@ -1,0 +1,149 @@
+*, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.page-title {
+    padding: 20px;
+    color: #4D413A;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-title h1 {
+    font-size: 30px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.page-title span {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.page-title span a {
+    color: #4D413A;
+    font-weight: 500;
+}
+
+.page-title span a:hover {
+    color: #968675;
+}
+
+.form-login {
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-login .form-field {
+    width: 500px;
+    margin-bottom: 20px;
+}
+
+.form-login .form-field label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #4D413A;
+    text-transform: uppercase;
+}
+
+.form-login .form-field input {
+    margin-top: 7px;
+    background-color: #ececec;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #968675;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    font-weight: 400;
+    color: #4D413A;
+}
+
+.form-login .form-field input:focus {
+    border: 1px solid #4D413A;
+}
+
+.form-login .form-field button {
+    margin-top: 7px;
+    background-color: #968675;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    font-weight: 400;
+    color: #FFF;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.form-login .form-field button:hover {
+    background-color: #796150;
+}
+
+.nav-changer {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-changer .nav-changer-item-left {
+    border: 1px solid #968675;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    color: #968675;
+    padding: 10px;
+}
+
+.nav-changer .nav-changer-item-left:hover {
+    cursor: pointer;
+    background-color: #968675;
+    color: #FFF;
+}
+
+.nav-changer .nav-changer-item-right {
+    border: 1px solid #968675;
+    border-left: none;
+    border-radius: 0 5px 5px 0;
+    color: #968675;
+    padding: 10px;
+}
+
+.nav-changer .nav-changer-item-right:hover {
+    cursor: pointer;
+    background-color: #968675;
+    color: #FFF;
+}
+
+.nav-changer .nav-changer-item-left.active,
+.nav-changer .nav-changer-item-right.active {
+    transition: all 0.3s ease-in-out;
+    background-color: #968675;
+    color: #FFF;
+}
+
+.nav-changer .nav-changer-item-left.active:hover,
+.nav-changer .nav-changer-item-right.active:hover {
+    cursor: pointer;
+    background-color: #796150;
+    color: #FFF;
+}

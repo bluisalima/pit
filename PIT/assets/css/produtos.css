@@ -1,0 +1,130 @@
+*, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.page-title {
+    padding: 20px;
+    color: #4D413A;
+    text-align: center;
+    width: 100%;
+}
+
+.page-title h1 {
+    font-size: 30px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+#products {
+    padding: 20px;
+    color: #FFF;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.product {
+    width: 300px;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    height: 320px !important;
+    min-height: 320px !important;
+    max-height: 320px !important;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+.product:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.product .product-favorite {
+    font-size: 30px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.product .product-favorite .material-icons {
+    color: #796150;
+    cursor: pointer;
+}
+
+.product .product-favorite .material-icons.favorite {
+    color: #F44336;
+}
+
+.product .product-favorite .material-icons:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.product .product-info {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1;
+}
+
+.product .product-info .product-info-backdrop {
+    width: 100%;
+    height: 35%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    bottom: 0;
+    z-index: -1;
+    border-radius: 0 0 10px 10px;
+}
+
+.add-cart {
+    width: 100%;
+    color: #796150;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.add-cart .material-symbols-outlined {
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.add-cart .material-symbols-outlined.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.add-cart .material-symbols-outlined:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.add-cart .total {
+    font-size: 20px;
+    font-weight: 500;
+}

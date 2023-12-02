@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/auth.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- JS -->
+    <script src="assets/js/default_header.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="left-header">
+            <span class="material-symbols-outlined">
+                local_cafe
+            </span>
+            <nav>
+                <ul>
+                    <li><a href="index.html">PÁGINA INICIAL</a></li>
+                    <li><a href="produtos.html">PRODUTOS</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right-header">
+            <div class="dropdown">
+                <span class="material-symbols-outlined" onclick="toggleDropdown('accountDropdown')">
+                    account_circle
+                </span>
+                <div class="dropdown-content" id="accountDropdown">
+                    <a href="login.html" id="login_redirect">Acesse</a>
+                    <a href="register.html" id="register_redirect">Cadastre-se</a>
+                    <a href="historico.html" id="historico_redirect">Histórico de Pedidos</a>
+                    <a id="logout_redirect" onclick="logout()">Sair</a>
+                </div>
+            </div>
+            <span class="material-symbols-outlined" onclick="window.location.href='carrinho.html'">
+                shopping_cart
+            </span>
+        </div>
+    </header>
+
+    <div class="page-title">
+        <h1>Login</h1>
+        <span>
+            Acesse sua conta para continuar, ou crie uma nova conta clicando <a href="register.html">aqui</a>.
+        </span>
+    </div>
+
+
+
+    <div class="form-login">
+        <div class="form-field">
+            <label for="email">E-mail</label>
+            <input type="email" name="email" id="email" required placeholder="Digite seu e-mail">
+        </div>
+        <div class="form-field">
+            <label for="password">Senha</label>
+            <input type="password" name="password" id="password" required placeholder="Digite sua senha">
+        </div>
+
+        <div class="form-field">
+            <button type="button" onclick="loginAccount()">Entrar</button>
+        </div>
+    </div>
+
+</body>
+<script>
+    window.onload = function() {
+        setDropdown();
+    }
+    function loginAccount() {
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+
+        if (email == '' || password == '') {
+            alert('Preencha todos os campos!');
+            return;
+        }
+
+        var login = {
+            email: email,
+            password: password,
+        };
+
+        fetch('/api/login.php', {
+            method: 'POST',
+            body: JSON.stringify(login),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status) {
+                alert(data.message);
+                if(localStorage.getItem('user') != null) {
+                    localStorage.removeItem('user');
+                }
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = 'index.html';
+            } else {
+                alert(data.message);
+            }
+        })
+    }
+</script>
+</html>

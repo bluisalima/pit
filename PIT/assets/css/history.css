@@ -1,0 +1,117 @@
+*, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.page-title {
+    padding: 20px;
+    color: #4D413A;
+    text-align: center;
+    width: 100%;
+}
+
+.page-title h1 {
+    font-size: 30px;
+    font-weight: 500;
+    margin: 10px;
+}
+
+#orders {
+    padding: 20px;
+    color: #4D413A;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#orders .order-header {
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+#orders .order-header h2 {
+    font-size: 18px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+#orders .order {
+    position: relative;
+}
+
+#orders .order .order-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    font-size: 16px;
+    font-weight: 500;
+    color: #968675;
+}
+
+#orders .order .order-footer:hover {
+    cursor: pointer;
+    color: #4D413A;
+    transition: all 0.3s ease-in-out;
+}
+
+#orders .order .order-footer .order-rating {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+#orders .order-content {
+    position: relative;
+    background-color: #fff;
+    width: 500px !important;
+    min-height: 150px !important;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+#orders .order-content:hover {
+    transform: scale(1.03);
+    transition: all 0.3s ease-in-out;
+}
+
+#orders .order .order-products {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+#orders .order .order-products .order-product {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: #968675;
+}

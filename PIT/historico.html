@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/history.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- JS -->
+    <script src="assets/js/default_header.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="left-header">
+            <span class="material-symbols-outlined">
+                local_cafe
+            </span>
+            <nav>
+                <ul>
+                    <li><a href="index.html">PÁGINA INICIAL</a></li>
+                    <li><a href="produtos.html">PRODUTOS</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right-header">
+            <div class="dropdown">
+                <span class="material-symbols-outlined" onclick="toggleDropdown('accountDropdown')">
+                    account_circle
+                </span>
+                <div class="dropdown-content" id="accountDropdown">
+                    <a href="login.html" id="login_redirect">Acesse</a>
+                    <a href="register.html" id="register_redirect">Cadastre-se</a>
+                    <a href="historico.html" id="historico_redirect">Histórico de Pedidos</a>
+                    <a id="logout_redirect" onclick="logout()">Sair</a>
+                </div>
+            </div>
+            <span class="material-symbols-outlined">
+                shopping_cart
+            </span>
+        </div>
+    </header>
+
+    <div class="page-title">
+        <h1>Histórico de Pedidos</h1>
+    </div>
+
+    <div id="orders">
+
+    </div>
+
+</body>
+<script>
+
+    window.onload = function() {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para acessar o seu histórico de pedidos!');
+            window.location.href = 'login.html';
+            return;
+        } else {
+            loadOrders();
+            setDropdown();
+        }
+    }
+
+    function openNote(id) {
+        let nota = prompt('De 1 a 5, qual nota você daria para o pedido?');
+
+        if(nota == null || nota == '') {
+            return;
+        }
+
+        if(nota < 1 || nota > 5) {
+            alert('A nota deve ser um número entre 1 e 5!');
+            return;
+        }
+
+        let order = {
+            order_id: id,
+            nota: nota,
+            type: 'nota'
+        };
+
+        fetch('/api/orders.php', {
+            method: 'POST',
+            body: JSON.stringify(order),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if(data.status) {
+                loadOrders();
+            } else {
+                alert('Erro ao avaliar pedido!');
+            }
+        });
+    }
+
+    function loadOrders() {
+        let orders = document.getElementById("orders");
+        fetch('/api/orders.php?user=' + JSON.parse(localStorage.getItem('user')).ID)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if(data.orders.length == 0) {
+                    orders.innerHTML = '<h2>Você ainda não fez nenhum pedido!</h2>';
+                    return;
+                } else {
+                    orders.innerHTML = '';
+
+                    //each data.orders
+                    data.orders.forEach(order => {
+                        order.order_id = order.order_id.toString().padStart(10, '0');
+                        let div = `
+                            <div class="order">
+                                <div class="order-header">
+                                    <h2>Pedido #${order.order_id}</h2>
+                                </div>
+                                <div class="order-content">
+                                    <div class="order-products">`;
+                        
+                        order.products.forEach(product => {
+                            console.log(product)
+                            div += `
+                                <div class="order-product">
+                                    <span>${product.quantity}x ${product.NOME}</span>
+                                </div>
+                            `;
+                        });
+
+                        if(order.nota && order.nota != null && order.nota > 0) {
+                            let starts = '';
+
+                            for(let i = 0; i < order.nota; i++) {
+                                starts += `<span class="material-icons">star</span>`;
+                            }
+
+                            for(let i = 0; i < 5 - order.nota; i++) {
+                                starts += `<span class="material-icons">star_border</span>`;
+                            }
+
+                            div += `</div>
+                                </div>
+                                <div class="order-footer" id="order_${order.order_id}">
+                                    <div class="order-rating">
+                                        ${starts}
+                                    </div>
+                                </div>
+                            </div>`;
+
+                        } else {
+                            div += `<div class="order-footer" id="order_${order.order_id}" onclick="openNote(${order.order_id})">
+                                AVALIE SEU PEDIDO
+                            </div>`;
+                        }
+                        orders.innerHTML += div;
+                    });
+                }
+            });
+    }
+</script>
+</html>

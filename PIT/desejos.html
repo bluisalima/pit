@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/produtos.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- JS -->
+    <script src="assets/js/default_header.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="left-header">
+            <span class="material-symbols-outlined">
+                local_cafe
+            </span>
+            <nav>
+                <ul>
+                    <li><a href="index.html">PÁGINA INICIAL</a></li>
+                    <li><a href="produtos.html">PRODUTOS</a></li>
+                    <li><a href="#">LISTA DE DESEJOS</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right-header">
+            <div class="dropdown">
+                <span class="material-symbols-outlined" onclick="toggleDropdown('accountDropdown')">
+                    account_circle
+                </span>
+                <div class="dropdown-content" id="accountDropdown">
+                    <a href="login.html" id="login_redirect">Acesse</a>
+                    <a href="register.html" id="register_redirect">Cadastre-se</a>
+                    <a href="historico.html" id="historico_redirect">Histórico de Pedidos</a>
+                    <a id="logout_redirect" onclick="logout()">Sair</a>
+                </div>
+            </div>
+            <span class="material-symbols-outlined" onclick="window.location.href='carrinho.html'">
+                shopping_cart
+            </span>
+        </div>
+    </header>
+
+    <div class="page-title">
+        <h1>Lista de Desejos</h1>
+    </div>
+
+    <div class="products" id="products">
+
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para acessar a sua lista de desejos!');
+            window.location.href = 'login.html';
+            return;
+        } else {
+            loadProducts();
+            setDropdown();
+        }
+    }
+
+    function favoriteProduct(id) {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para adicionar produtos à lista de desejos!');
+            return;
+        }
+
+        let product = {
+            user_id: JSON.parse(localStorage.getItem('user')).ID,
+            product_id: id
+        };
+
+        fetch('/api/wishlist.php', {
+            method: 'POST',
+            body: JSON.stringify(product),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status) {
+                loadProducts();
+            } else {
+                alert('Erro ao adicionar produto à lista de desejos!');
+            }
+        })
+    }
+
+    function reduceProducts(id) {
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        if (value > 1) {
+            counter.innerHTML = value - 1;
+
+            if (value - 1 == 1) {
+                document.getElementById(`reduce_${id}`).classList.add('disabled');
+            }
+        } else {
+            document.getElementById(`reduce_${id}`).classList.add('disabled');
+        }
+
+    }
+
+    function moreProducts(id) {
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        counter.innerHTML = value + 1;
+        document.getElementById(`reduce_${id}`).classList.remove('disabled');
+    }
+
+    function addToCart(id) {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para adicionar produtos ao carrinho!');
+            return;
+        }
+
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        let product = {
+            product_id: id,
+            type: 'add',
+            quantity: value,
+            user_id: JSON.parse(localStorage.getItem('user')).ID
+        };
+
+        fetch('/api/cart.php', {
+            method: 'POST',
+            body: JSON.stringify(product),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Produto adicionado ao carrinho!');
+                    document.getElementById(`counter_${id}`).innerHTML = 1;
+                    document.getElementById(`reduce_${id}`).classList.add('disabled');
+                } else {
+                    alert('Erro ao adicionar produto ao carrinho!');
+                }
+            });
+    }
+
+    function loadProducts() {
+        let products = document.getElementById("products");
+        fetch('/api/products.php?page=wishlist&user=' + JSON.parse(localStorage.getItem('user')).ID)
+            .then(response => response.json())
+            .then(data => {
+                products.innerHTML = '';
+                if(data.length == 0) {
+                    products.innerHTML = '<h3 style="color: #000">Você ainda não adicionou nenhum produto a sua lista de desejos!</h1>';
+                    return;
+                } else {
+                    data.forEach(product => {
+
+                        let price = product.PRECO.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+
+                        let div = `
+                                <div class="card">
+                                    <div class="product" style="background-image: url('${product.IMAGEM}');">
+                                        <div class="product-favorite">
+                                            <span id="favorite_${product.ID}" class="material-icons ${product.in_wishlist ? 'favorite' : ''}" onclick="favoriteProduct(${product.ID})">
+                                                favorite
+                                            </span>
+                                        </div>
+                                        <div class="product-info">
+                                            <div class="product-info-backdrop"></div>
+                                            <h1>${product.NOME}</h1>
+                                            <p>${product.DESCRICAO}</p>
+                                            <p>R$ ${price}</p>
+                                        </div>
+                                    </div>
+                                    <div class="add-cart">
+                                        <span id="reduce_${product.ID}" class="material-symbols-outlined disabled" onclick="reduceProducts(${product.ID})">
+                                            chevron_left
+                                        </span>
+
+                                        <span class="total" id="counter_${product.ID}">
+                                            1
+                                        </span>
+
+                                        <span id="more_${product.ID}" class="material-symbols-outlined" onclick="moreProducts(${product.ID})">
+                                            chevron_right
+                                        </span>
+
+                                        <span class="material-symbols-outlined" onclick="addToCart(${product.ID})">
+                                            shopping_cart
+                                        </span>
+                                    </div>
+                                </div>
+                                `;
+
+                        products.innerHTML += div;
+                    });
+                }
+
+            });
+    }
+</script>
+</html>

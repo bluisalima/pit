@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafeteria Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/cart.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+
+    <!-- JS -->
+    <script src="assets/js/default_header.js"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="left-header">
+            <span class="material-symbols-outlined">
+                local_cafe
+            </span>
+            <nav>
+                <ul>
+                    <li><a href="index.html">PÁGINA INICIAL</a></li>
+                    <li><a href="produtos.html">PRODUTOS</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right-header">
+            <div class="dropdown">
+                <span class="material-symbols-outlined" onclick="toggleDropdown('accountDropdown')">
+                    account_circle
+                </span>
+                <div class="dropdown-content" id="accountDropdown">
+                    <a href="login.html" id="login_redirect">Acesse</a>
+                    <a href="register.html" id="register_redirect">Cadastre-se</a>
+                    <a href="historico.html" id="historico_redirect">Histórico de Pedidos</a>
+                    <a id="logout_redirect" onclick="logout()">Sair</a>
+                </div>
+            </div>
+            <span class="material-symbols-outlined">
+                shopping_cart
+            </span>
+        </div>
+    </header>
+
+    <div class="page-title">
+        <h1>Carrinho de Compras</h1>
+    </div>
+
+    <div class="cart">
+        <div class="cart-left" id="products">
+
+        </div>
+        <div class="cart-right">
+            <div class="cart-info">
+                <h1>VALOR TOTAL</h1>
+                <p id="total_cart"></p>
+            </div>
+
+            <div class="cart-info">
+                <h1>MEIOS DE PAGAMENTO</h1>
+
+                <div class="cart-payments">
+                    <div class="cart-payments-item" onclick="setPaymentType('cartao')">
+                        <img src="assets/img/payments/cartao.png" alt="">
+                    </div>
+                    <div class="cart-payments-item" onclick="setPaymentType('boleto')">
+                        <img src="assets/img/payments/boleto.png" alt="">
+                    </div>
+                    <div class="cart-payments-item" onclick="setPaymentType('pix')">
+                        <img src="assets/img/payments/pix.png" alt="">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="cart-info">
+                <h1>CHECKOUT</h1>
+
+                <button class="cart-checkout" onclick="finishOrder()">FINALIZAR COMPRA</button>
+            </div>
+        </div> 
+    </div>
+</body>
+<script>
+    let defaultPayment = 'boleto';
+    let allProducts = [];
+
+    window.onload = function() {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para acessar o seu carrinho!');
+            window.location.href = 'login.html';
+            return;
+        } else {
+            loadProducts();
+            setPaymentType(defaultPayment);
+            setDropdown();
+        }
+    }
+
+    function setPaymentType(type) {
+        let payments = document.querySelectorAll('.cart-payments-item');
+        payments.forEach(payment => {
+            payment.classList.remove('active');
+        });
+
+        document.querySelector(`.cart-payments-item img[src="assets/img/payments/${type}.png"]`).parentElement.classList.add('active');
+    }
+
+    function updateToCart(id, type='update') {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para alterar produtos do carrinho!');
+            return;
+        }
+
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        let product = {
+            product_id: id,
+            type: type,
+            quantity: value,
+            user_id: JSON.parse(localStorage.getItem('user')).ID
+        };
+
+        fetch('/api/cart.php', {
+            method: 'POST',
+            body: JSON.stringify(product),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    loadProducts();
+                } else {
+                    alert(data.message);
+                    loadProducts();
+                }
+            });
+    }
+
+    function finishOrder() {
+        if(localStorage.getItem('user') == null) {
+            alert('Você precisa estar logado para finalizar um pedido!');
+            return;
+        }
+
+        let order = {
+            user_id: JSON.parse(localStorage.getItem('user')).ID,
+            payment_type: defaultPayment,
+            products: allProducts
+        };
+
+        fetch('/api/orders.php', {
+            method: 'POST',
+            body: JSON.stringify(order),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert(data.message);
+                    window.location.href = 'historico.html';
+                } else {
+                    alert(data.message);
+                    console.log(data);
+                    loadProducts();
+                }
+            });
+    }
+
+    function reduceProducts(id) {
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        if (value > 1) {
+            counter.innerHTML = value - 1;
+
+            if (value - 1 == 1) {
+                document.getElementById(`reduce_${id}`).classList.add('disabled');
+            }
+
+            updateToCart(id);
+        } else {
+            document.getElementById(`reduce_${id}`).classList.add('disabled');
+        }
+    }
+
+    function moreProducts(id) {
+        let counter = document.getElementById(`counter_${id}`);
+        let value = parseInt(counter.innerHTML);
+
+        counter.innerHTML = value + 1;
+        document.getElementById(`reduce_${id}`).classList.remove('disabled');
+
+        updateToCart(id);
+    }
+
+    function loadProducts() {
+        let products = document.getElementById("products");
+        fetch('/api/products.php?page=cart&user=' + JSON.parse(localStorage.getItem('user')).ID)
+            .then(response => response.json())
+            .then(data => {
+                let total = 0;
+                products.innerHTML = '';
+                if(data.products.length == 0) {
+                    products.innerHTML = '<h3 style="color: #000">Você ainda não adicionou nenhum produto ao seu carrinho!</h1>';
+                } else {
+                    data.products.forEach(product => {
+
+                        let price = product.PRECO.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+                        total += product.PRECO * product.quantity;
+
+                        let div = `
+
+                        <div class="card">
+                            <div class="card-item">
+                                <div class="product" style="background-image: url('${product.IMAGEM}');">
+
+                                </div>
+
+                                <div class="add-cart">
+                                    <span class="material-symbols-outlined ${product.quantity == '1' ? 'disabled' : ''}" onclick="reduceProducts(${product.ID})" id="reduce_${product.ID}">
+                                        chevron_left
+                                    </span>
+                    
+                                    <span class="total" id="counter_${product.ID}">
+                                        ${product.quantity}
+                                    </span>
+                    
+                                    <span class="material-symbols-outlined" onclick="moreProducts(${product.ID})" id="more_${product.ID}">
+                                        chevron_right
+                                    </span>
+                    
+                                    <span class="material-symbols-outlined" onclick="updateToCart(${product.ID}, 'remove')">
+                                        delete
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="product-info">
+                                <h1 class="product-name">${product.NOME}</h1>
+                                <p class="product-description">${product.DESCRICAO}</p>
+                                <p class="product-price">R$ ${price}</p>
+                            </div>    
+                        </div>`;
+
+                        products.innerHTML += div;
+                    });
+                }
+
+                allProducts = data.products;
+
+                document.getElementById('total_cart').innerHTML = total.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+
+                if(total == 0) {
+                    document.querySelector('.cart-checkout').classList.add('disabled');
+                } else {
+                    document.querySelector('.cart-checkout').classList.remove('disabled');
+                }
+                return;
+            });
+    }
+</script>
+</html>
